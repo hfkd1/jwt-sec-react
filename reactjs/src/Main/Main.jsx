@@ -13,7 +13,8 @@ import { AppMenu } from "../Components/AppMenu";
 import { AppProfile } from "../Components/AppProfile";
 import { AppTopbar } from "../Components/AppTopbar";
 import { Dashboard } from "../Dashboard/Dashboard";
-import { LanguageProvider, LanguageContext } from "../LanguageContext";
+import { LanguageContext, languages } from "../LanguageContext/LanguageContext";
+import LanguageSwitchDropdown from "../LanguageContext/LanguageSwitchDropdown";
 import "../layout/layout.scss";
 
 export class Main extends Component {
@@ -25,14 +26,33 @@ export class Main extends Component {
       layoutColorMode: "dark",
       staticMenuInactive: false,
       overlayMenuActive: false,
-      mobileMenuActive: false
+      mobileMenuActive: false,
+language: languages.english,
+      dashboard: languages.dashboard_en,
+      topbar: languages.topbar_en
     };
 
     this.onWrapperClick = this.onWrapperClick.bind(this);
     this.onToggleMenu = this.onToggleMenu.bind(this);
     this.onSidebarClick = this.onSidebarClick.bind(this);
     this.onMenuItemClick = this.onMenuItemClick.bind(this);
-    this.createMenu();
+
+this.switchLanguage = () => {
+      this.setState(state => ({
+        language:
+          state.language === languages.english
+            ? languages.turkish
+            : languages.english,
+        dashboard:
+          state.language === languages.english
+            ? languages.dashboard_tr
+            : languages.dashboard_en,
+        topbar:
+          state.language === languages.english
+            ? languages.topbar_tr
+            : languages.topbar_en
+      }));
+    };
   }
 
   onThemeSwitchClick() {
@@ -90,33 +110,62 @@ export class Main extends Component {
     }
   }
 
-  createMenu() {
-    this.menu = [
-      {
-        label: "Dashboard",
-        icon: "pi pi-fw pi-home",
-        command: () => {
-          window.location = "#/";
-        }
-      },
+  createMenu(l) {
+    if (l === "EN") {
+      return [
+        {
+          label: "Dashboard",
+          icon: "pi pi-fw pi-home",
+          command: () => {
+            window.location = "#/";
+          }
+        },
 
-      {
-        label: "Template Pages",
-        icon: "pi pi-fw pi-file",
-        items: [
-          // { label: "Login Page", icon: "pi pi-fw pi-circle-off", to: "/login" }
-        ]
-      },
+        {
+          label: "Template Pages",
+          icon: "pi pi-fw pi-file",
+          items: [
+            // { label: "Login Page", icon: "pi pi-fw pi-circle-off", to: "/login" }
+          ]
+        },
 
-      {
-        label: "Theme Switch",
-        icon: "pi pi-fw pi-spinner",
-        command: () => {
-          this.onThemeSwitchClick();
+        {
+          label: "Theme Switch",
+          icon: "pi pi-fw pi-spinner",
+          command: () => {
+            this.onThemeSwitchClick();
+          }
         }
-      }
-    ];
+      ];
+    } else if (l === "TR") {
+      return [
+        {
+          label: "Panel",
+          icon: "pi pi-fw pi-home",
+          command: () => {
+            window.location = "#/";
+          }
+        },
+
+        {
+          label: "Şablon Sayfaları",
+          icon: "pi pi-fw pi-file",
+          items: [
+            // { label: "Login Page", icon: "pi pi-fw pi-circle-off", to: "/login" }
+          ]
+        },
+
+        {
+          label: "Tema Değiştir",
+          icon: "pi pi-fw pi-spinner",
+          command: () => {
+            this.onThemeSwitchClick();
+          }
+        }
+      ];
+    }
   }
+
 
   addClass(element, className) {
     if (element.classList) element.classList.add(className);
@@ -167,6 +216,14 @@ export class Main extends Component {
     });
 
     return (
+<LanguageContext.Provider
+        value={{
+          language: this.state.language,
+          switchLanguage: this.switchLanguage,
+          dashboard: this.state.dashboard,
+          topbar: this.state.topbar
+        }}
+      >
       <div className={wrapperClass} onClick={this.onWrapperClick}>
         <AppTopbar onToggleMenu={this.onToggleMenu} />
 
@@ -177,19 +234,20 @@ export class Main extends Component {
         >
           <div className="layout-logo">
             <img alt="Logo" src={logo} />
+              <LanguageSwitchDropdown></LanguageSwitchDropdown>
           </div>
           <AppProfile />
-          <AppMenu model={this.menu} onMenuItemClick={this.onMenuItemClick} />
+          <AppMenu model={this.createMenu(this.state.language)} onMenuItemClick={this.onMenuItemClick} />
         </div>
 
         <div className="layout-main">
+            <h1>{this.state.language}</h1>
           <Route path="/main" exact component={Dashboard} />
         </div>
 
-        <AppFooter />
-
         <div className="layout-mask" />
       </div>
+      </LanguageContext.Provider>
     );
   }
 }

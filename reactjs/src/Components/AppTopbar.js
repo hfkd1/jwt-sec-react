@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {InputText} from 'primereact/inputtext';
 import PropTypes from 'prop-types';
+import { LanguageContext, languages } from "../LanguageContext/LanguageContext";
 
 export class AppTopbar extends Component {
 
@@ -14,13 +15,15 @@ export class AppTopbar extends Component {
 
     render() {
         return (
+      <LanguageContext.Consumer>
+	{({ topbar }) => (
             <div className="layout-topbar clearfix">
                 <button className="p-link layout-menu-button" onClick={this.props.onToggleMenu}>
                     <span className="pi pi-bars"/>
                 </button>
                 <div className="layout-topbar-icons">
                     <span className="layout-topbar-search">
-                        <InputText type="text" placeholder="Search" />
+                        <InputText type="text" placeholder={topbar.searchPlaceholder} />
                         <span className="layout-topbar-search-icon pi pi-search"/>
                     </span>
                     <button className="p-link">
@@ -38,6 +41,8 @@ export class AppTopbar extends Component {
                     </button>
                 </div>
             </div>
+	)}
+      </LanguageContext.Consumer>
         );
     }
 }
