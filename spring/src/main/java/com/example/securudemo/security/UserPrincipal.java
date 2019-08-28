@@ -22,13 +22,13 @@ public class UserPrincipal implements UserDetails {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
         // permissionları listeye al
-        this.user.getPermissionList().forEach(p -> {
+        this.user.getRole().getPermissionList().forEach(p -> {
             GrantedAuthority authority = new SimpleGrantedAuthority(p);
             authorities.add(authority);
         });
 
         //role leri listeye al
-        this.user.getRoleList().forEach(r -> {
+        this.user.getRole().getRoleList().forEach(r -> {
             GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + r);
             authorities.add(authority);
         });

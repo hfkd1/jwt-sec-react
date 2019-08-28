@@ -75,7 +75,14 @@ public class JwtAuthFilter extends UsernamePasswordAuthenticationFilter{
                 .sign(HMAC512(JwtProperties.SECRET.getBytes()));
 
         //token responsa ekleniyor
-        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX +  token);
+//        response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX +  token);
+
+        
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(
+                "{\"" + JwtProperties.HEADER_STRING + "\":\"" + JwtProperties.TOKEN_PREFIX+token + "\"}"
+        );
     }
 
 	

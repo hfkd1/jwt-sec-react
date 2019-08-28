@@ -61,7 +61,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     .verify(token)
                     .getSubject();
 
-            // token içinde subject teki username i DB de arıyoruz
+            // token içinde subjectteki username i DB de arıyoruz
             // usernamei kullanarak yetkilerini çekiyoruz
             if (userName != null) {
                 User user = userRepository.findByUsername(userName);
