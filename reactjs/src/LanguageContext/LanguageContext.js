@@ -16,6 +16,16 @@ export const languages = {
   },
   topbar_tr: {
     searchPlaceholder: "Ara"
+  },
+  profile_en: {
+    account: "Account",
+    notifications: "Notifications",
+    logout: "Logout"
+  },
+  profile_tr: {
+    account: "Hesap",
+    notifications: "Bildirimler",
+    logout: "Çıkış"
   }
 };
 

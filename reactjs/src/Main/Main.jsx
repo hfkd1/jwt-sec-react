@@ -34,7 +34,8 @@ export class Main extends Component {
       mobileMenuActive: false,
       language: languages.english,
       dashboard: languages.dashboard_en,
-      topbar: languages.topbar_en
+      topbar: languages.topbar_en,
+      profile: languages.profile_en
     };
 
     this.onWrapperClick = this.onWrapperClick.bind(this);
@@ -55,7 +56,11 @@ export class Main extends Component {
         topbar:
           state.language === languages.english
             ? languages.topbar_tr
-            : languages.topbar_en
+            : languages.topbar_en,
+        profile:
+          state.language === languages.english
+            ? languages.profile_tr
+            : languages.profile_en
       }));
     };
   }
@@ -265,7 +270,8 @@ export class Main extends Component {
             language: this.state.language,
             switchLanguage: this.switchLanguage,
             dashboard: this.state.dashboard,
-            topbar: this.state.topbar
+            topbar: this.state.topbar,
+            profile: this.state.profile
           }}
         >
           <div className={wrapperClass} onClick={this.onWrapperClick}>
