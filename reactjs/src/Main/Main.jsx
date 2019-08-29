@@ -16,18 +16,23 @@ import { Dashboard } from "../Dashboard/Dashboard";
 import { LanguageContext, languages } from "../LanguageContext/LanguageContext";
 import LanguageSwitchDropdown from "../LanguageContext/LanguageSwitchDropdown";
 import "../layout/layout.scss";
+import axios from "axios";
 
 export class Main extends Component {
   constructor() {
     super();
 
     this.state = {
+      status: null,
+
+      groups: [],
+
       layoutMode: "static",
       layoutColorMode: "dark",
       staticMenuInactive: false,
       overlayMenuActive: false,
       mobileMenuActive: false,
-language: languages.english,
+      language: languages.english,
       dashboard: languages.dashboard_en,
       topbar: languages.topbar_en
     };
@@ -37,7 +42,7 @@ language: languages.english,
     this.onSidebarClick = this.onSidebarClick.bind(this);
     this.onMenuItemClick = this.onMenuItemClick.bind(this);
 
-this.switchLanguage = () => {
+    this.switchLanguage = () => {
       this.setState(state => ({
         language:
           state.language === languages.english
@@ -166,7 +171,6 @@ this.switchLanguage = () => {
     }
   }
 
-
   addClass(element, className) {
     if (element.classList) element.classList.add(className);
     else element.className += " " + className;
@@ -193,6 +197,41 @@ this.switchLanguage = () => {
       this.addClass(document.body, "body-overflow-hidden");
     else this.removeClass(document.body, "body-overflow-hidden");
   }
+  componentDidMount() {
+    console.log(localStorage.getItem("Authorization"));
+
+    axios
+      .get("http://localhost:8080/api/public/admin/users", {
+        headers: {
+          Authorization: localStorage.getItem("Authorization")
+        }
+      })
+      .then(response => {
+        response.data.forEach(user => {
+          console.log(user.username);
+        });
+        this.setState({ groups: response.data });
+        console.log("------");
+        console.log(this.state.groups);
+        console.log("------");
+
+        if (response.status === 200) {
+          this.setState({ status: response.status });
+
+          console.log(this.state.status);
+        }
+      })
+      .catch(err => {
+        this.setState({ status: err.response.status });
+
+        if (this.state.status === 403) {
+          console.log(this.state.status);
+          console.log("yetkilendirme hatası: 403 status");
+        } else {
+          console.log("başka bir hatamız bulunmaktadır");
+        }
+      });
+  }
 
   render() {
     const logo =
@@ -215,40 +254,53 @@ this.switchLanguage = () => {
       "layout-sidebar-light": this.state.layoutColorMode === "light"
     });
 
-    return (
-<LanguageContext.Provider
-        value={{
-          language: this.state.language,
-          switchLanguage: this.switchLanguage,
-          dashboard: this.state.dashboard,
-          topbar: this.state.topbar
-        }}
-      >
-      <div className={wrapperClass} onClick={this.onWrapperClick}>
-        <AppTopbar onToggleMenu={this.onToggleMenu} />
-
-        <div
-          ref={el => (this.sidebar = el)}
-          className={sidebarClassName}
-          onClick={this.onSidebarClick}
+    const { groups } = this.state;
+    if (this.state.status === 403) {
+      alert("403 statu alert deneme");
+      return <p>Yetkilendirme hatası...</p>;
+    } else {
+      return (
+        <LanguageContext.Provider
+          value={{
+            language: this.state.language,
+            switchLanguage: this.switchLanguage,
+            dashboard: this.state.dashboard,
+            topbar: this.state.topbar
+          }}
         >
-          <div className="layout-logo">
-            <img alt="Logo" src={logo} />
-              <LanguageSwitchDropdown></LanguageSwitchDropdown>
+          <div className={wrapperClass} onClick={this.onWrapperClick}>
+            <AppTopbar onToggleMenu={this.onToggleMenu} />
+
+            <div
+              ref={el => (this.sidebar = el)}
+              className={sidebarClassName}
+              onClick={this.onSidebarClick}
+            >
+              <div className="layout-logo">
+                <img alt="Logo" src={logo} />
+                <LanguageSwitchDropdown></LanguageSwitchDropdown>
+              </div>
+              <AppProfile />
+              <AppMenu
+                model={this.createMenu(this.state.language)}
+                onMenuItemClick={this.onMenuItemClick}
+              />
+            </div>
+
+            <div className="layout-main">
+              <h1>{this.state.language}</h1>
+              <Route path="/main" exact component={Dashboard} />
+              <h2>usernames</h2>
+              {groups.map(group => (
+                <div key={group.id}>{group.username}</div>
+              ))}
+            </div>
+
+            <div className="layout-mask" />
           </div>
-          <AppProfile />
-          <AppMenu model={this.createMenu(this.state.language)} onMenuItemClick={this.onMenuItemClick} />
-        </div>
-
-        <div className="layout-main">
-            <h1>{this.state.language}</h1>
-          <Route path="/main" exact component={Dashboard} />
-        </div>
-
-        <div className="layout-mask" />
-      </div>
-      </LanguageContext.Provider>
-    );
+        </LanguageContext.Provider>
+      );
+    }
   }
 }
 
