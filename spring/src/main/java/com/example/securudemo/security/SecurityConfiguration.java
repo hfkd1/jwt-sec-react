@@ -19,6 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.securudemo.repository.GroupMemberRepository;
 import com.example.securudemo.repository.UserRepository;
 
 
@@ -29,13 +30,13 @@ import com.example.securudemo.repository.UserRepository;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private UserPrincipalDetailsService userPrincipalDetailsService;
-    private UserRepository userRepository;
+    private GroupMemberRepository groupMemberRepository;
     
     
 
-    public SecurityConfiguration(UserPrincipalDetailsService userPrincipalDetailsService, UserRepository userRepository) {
+    public SecurityConfiguration(UserPrincipalDetailsService userPrincipalDetailsService, GroupMemberRepository groupMemberRepository) {
         this.userPrincipalDetailsService = userPrincipalDetailsService;
-        this.userRepository=userRepository;
+        this.groupMemberRepository=groupMemberRepository;
         
     }
 
@@ -53,11 +54,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 	        .and()
 	        .addFilter(new JwtAuthFilter(authenticationManager()))
-	        .addFilter(new JwtAuthorizationFilter(authenticationManager(),  this.userRepository))
+	        .addFilter(new JwtAuthorizationFilter(authenticationManager(),  this.groupMemberRepository))
 	        .authorizeRequests()
 	        .antMatchers(HttpMethod.POST, "/login").permitAll()
-	        .antMatchers("/api/public/management/*").hasRole("MANAGER")
-	        .antMatchers("/api/public/admin/*").hasRole("ADMIN")
+	        .antMatchers("/api/public/management/*").hasAnyAuthority("ACCESS_TEST1")
+	        .antMatchers("/api/public/admin/*").hasAnyAuthority("ACCESS_TEST2")
 	        .anyRequest().authenticated();
         
         //JWT ONCESİ ROLLENDİRME!!!!

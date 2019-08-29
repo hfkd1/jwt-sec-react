@@ -17,18 +17,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import com.auth0.jwt.JWT;
-
+import com.example.securudemo.model.GroupMember;
 import com.example.securudemo.model.User;
+import com.example.securudemo.repository.GroupMemberRepository;
 import com.example.securudemo.repository.UserRepository;
 
 
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private UserRepository userRepository;
+    private GroupMemberRepository groupMemberRepository;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, GroupMemberRepository groupMemberRepository) {
         super(authenticationManager);
-        this.userRepository = userRepository;
+        this.groupMemberRepository = groupMemberRepository;
     }
 
     @Override
@@ -64,8 +66,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             // token içinde subjectteki username i DB de arıyoruz
             // usernamei kullanarak yetkilerini çekiyoruz
             if (userName != null) {
-                User user = userRepository.findByUsername(userName);
-                UserPrincipal principal = new UserPrincipal(user);
+            	GroupMember gMember = groupMemberRepository.findByUserName(userName);
+                //User user = userRepository.findByUsername(userName);
+                UserPrincipal principal = new UserPrincipal(gMember);
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userName, null, principal.getAuthorities());
                 return auth;
             }

@@ -2,6 +2,7 @@ package com.example.securudemo.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -9,10 +10,20 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 
 
 @Entity
 public class Role {
+
+	public Role(String roleName, GroupAuthority groupAuthority) {
+		super();
+		this.roleName = roleName;
+		this.roleGroup = groupAuthority;
+	}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,22 +31,10 @@ public class Role {
 	
 	@Column(nullable = false)
 	private String roleName;
-	
-	@Column(nullable = false)
-	private String permission;
 
-	public Role() {
-		
-	}
 	
-	public Role(String roleName, String permission) {
-		
-		this.roleName = roleName;
-		this.permission = permission;
-		
-	}
 	
-	public List<String> getPermissionList(){
+/*	public List<String> getPermissionList(){
 		if(this.permission.length()>0) {
 			return Arrays.asList(this.permission.split(","));
 		}
@@ -49,13 +48,46 @@ public class Role {
 		return new ArrayList<>();
 	}
 	
+	
+*/
+	@OneToOne
+    @JoinTable(
+        name = "roleGroup", 
+        joinColumns = @JoinColumn(
+          name = "roleId", referencedColumnName = "id"), 
+        inverseJoinColumns = @JoinColumn(
+          name = "groupAuthorityId", referencedColumnName = "id"))
+	private GroupAuthority roleGroup;
+	
+	
+	public GroupAuthority getGroupAuthority() {
+		return roleGroup;
+	}
+
+
+	public void setGroupAuthority(GroupAuthority groupAuthority) {
+		this.roleGroup = groupAuthority;
+	}
+
+
+	public GroupMember getGroupMembersRoles() {
+		return groupMembersRoles;
+	}
+
+
+	public void setGroupMembersRoles(GroupMember groupMembersRoles) {
+		this.groupMembersRoles = groupMembersRoles;
+	}
+
+	@OneToOne(mappedBy = "groupMembersRoles")
+    private GroupMember groupMembersRoles;
+	
+	
+	
 	public Long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	public String getRoleName() {
 		return roleName;
@@ -64,13 +96,6 @@ public class Role {
 	public void setRoleName(String roleName) {
 		this.roleName = roleName;
 	}
-
-	public String getPermission() {
-		return permission;
-	}
-
-	public void setPermission(String permission) {
-		this.permission = permission;
-	}
+	
 	
 }
