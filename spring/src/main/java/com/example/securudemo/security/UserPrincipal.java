@@ -8,24 +8,27 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.example.securudemo.model.GroupMember;
 import com.example.securudemo.model.User;
 
 public class UserPrincipal implements UserDetails {
-    private GroupMember gMember;
+    private User user;
 
-    public UserPrincipal(GroupMember gMember){
-        this.gMember = gMember;
+    public UserPrincipal(User user){
+        this.user = user;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        
+        // permissionları listeye al
+        this.user.getRole().getPermissionList().forEach(p -> {
+            GrantedAuthority authority = new SimpleGrantedAuthority(p);
+            authorities.add(authority);
+        });
 
         //role leri listeye al
-        this.gMember.getGroupMembers().forEach(r -> {
+        this.user.getRole().getRoleList().forEach(r -> {
             GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + r);
             authorities.add(authority);
         });
@@ -33,7 +36,16 @@ public class UserPrincipal implements UserDetails {
         return authorities;
     }
 
-   
+    @Override
+    public String getPassword() {
+        return this.user.getPassword();
+    }
+
+    @Override
+    public String getUsername() {
+        return this.user.getUsername();
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -49,23 +61,8 @@ public class UserPrincipal implements UserDetails {
         return true;
     }
 
-    
-
-	@Override
-	public String getPassword() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getUsername() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean isEnabled() {
+        return this.user.getActive() == 1;
+    }
 }
